@@ -124,10 +124,41 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 			String1: Newline(testReturn.textbox, asciiChrs),
 			String2: "",
 		}
+
+		data := Banner{
+			Ban1:    "",
+			Ban2:    "",
+			Ban3:    "",
+			String1: p.String1,
+			String2: p.String2,
+		}
+
+		man := os.WriteFile("download", []byte(data.String1), 0644)
+		if man != nil {
+			panic(man)
+		}
+
 		if err := tpl.ExecuteTemplate(w, "index.html", p); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
+}
+
+func download(w http.ResponseWriter, r *http.Request) {
+	file, _ := os.Open("download" + ".txt")
+
+	defer file.Close()
+
+	scanned := bufio.NewScanner(file) // reading file
+	scanned.Split(bufio.ScanLines)
+
+	var lines []string
+
+	for scanned.Scan() {
+		lines = append(lines, scanned.Text())
+	}
+
+	file.Close()
 }
 
 // Newline function returns the ascii art string horizontally
@@ -144,12 +175,13 @@ func Newline(n string, y map[int][]string) string {
 	return empty
 }
 
-// main runs the api(server) and its respective handlers
+// main runs the api(server) and its	 respective handlers
 func main() {
 	tpl = template.Must(template.ParseGlob("templates/*.html"))
 	// http.PathPrefix("/styles/").Handler(http.StripPrefix("/styles/",
 	http.HandleFunc("/", indexHandler)
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("templates/styles/"))))
 	http.HandleFunc("/ascii-art", processHandler)
+	http.HandleFunc("/down", download)
 	http.ListenAndServe(":8080", nil)
 }
