@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -114,6 +115,24 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 			String1: Newline(testReturn.textbox[:count-2], asciiChrs),
 			String2: Newline(testReturn.textbox[count:], asciiChrs),
 		}
+
+		// fmt.Println(p.String1)
+		// fmt.Println(p.String2)
+
+		man := os.WriteFile("download.txt", []byte(p.String1), 0644)
+		if man != nil {
+			panic(man)
+		}
+
+		file, err := os.OpenFile("download.txt", os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Println(err)
+		}
+		defer file.Close()
+		if _, err := file.WriteString(p.String2); err != nil {
+			log.Fatal(err)
+		}
+
 		if err := tpl.ExecuteTemplate(w, "index.html", p); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -126,15 +145,10 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 			String2: "",
 		}
 
-		data := Banner{
-			Ban1:    "",
-			Ban2:    "",
-			Ban3:    "",
-			String1: p.String1,
-			String2: p.String2,
-		}
+		// fmt.Println(p.String1)
+		// fmt.Println(p.String2)
 
-		man := os.WriteFile("download.txt", []byte(data.String1), 0644)
+		man := os.WriteFile("download.txt", []byte(p.String1), 0644)
 		if man != nil {
 			panic(man)
 		}
@@ -154,6 +168,7 @@ func download(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Disposition", "attachment; filename=YourFile")
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
 
 	io.Copy(w, f)
 }
