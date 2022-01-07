@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -133,7 +134,7 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 			String2: p.String2,
 		}
 
-		man := os.WriteFile("download", []byte(data.String1), 0644)
+		man := os.WriteFile("download.txt", []byte(data.String1), 0644)
 		if man != nil {
 			panic(man)
 		}
@@ -145,20 +146,16 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func download(w http.ResponseWriter, r *http.Request) {
-	file, _ := os.Open("download" + ".txt")
+	f, _ := os.Open("download.txt")
+	// if err != nil {
+	// 	return err
+	// }
+	defer f.Close()
 
-	defer file.Close()
+	w.Header().Set("Content-Disposition", "attachment; filename=YourFile")
+	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 
-	scanned := bufio.NewScanner(file) // reading file
-	scanned.Split(bufio.ScanLines)
-
-	var lines []string
-
-	for scanned.Scan() {
-		lines = append(lines, scanned.Text())
-	}
-
-	file.Close()
+	io.Copy(w, f)
 }
 
 // Newline function returns the ascii art string horizontally
