@@ -22,14 +22,13 @@
             <br>
       </div>
       <div class="usersubmit">
-            <textarea id ="textarea" name="textbox"  placeholder="Enter text (Max 2 lines)" action="/down" method="POST"  rows="2" cols="50" style="border-radius:4px;" ></textarea>
+            <textarea id ="textarea" name="textbox"  placeholder="Enter text" action="/down" method="POST"  rows="2" cols="50" style="border-radius:4px;" ></textarea>
             <input type= "submit" value="Asciify" class= "button"/>
       </div>
       <br>
       <br>
       <div class="asciibox" >
          <pre>{{.String1}}</pre> 
-         <pre>{{.String2}}</pre>
       </div>
       <button onclick="location.href='http://localhost:8080/down'" type="button">Download</button>
    </body>
