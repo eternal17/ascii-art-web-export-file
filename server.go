@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -106,12 +106,6 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 		panic(man)
 	}
 
-	file2, err := os.OpenFile("download.txt", os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	defer file2.Close()
-
 	if err := tpl.ExecuteTemplate(w, "index.html", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -121,9 +115,14 @@ func download(w http.ResponseWriter, r *http.Request) {
 	f, _ := os.Open("download.txt")
 	defer f.Close()
 
+	file, _ := f.Stat()
+	fsize := file.Size()
+
+	sfSize := strconv.Itoa(int(fsize))
+
 	w.Header().Set("Content-Disposition", "attachment; filename=asciiresults")
-	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
-	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
+	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Length", sfSize)
 
 	io.Copy(w, f)
 }
