@@ -8,10 +8,10 @@
       <link href="https://fonts.googleapis.com/css2?family=Courgette&display=swap" rel="stylesheet">
    </head>
    <body>
-      <div class=options>
-         <form id="bannerHeader" action="/ascii-art" method="POST">
-            <h1 style="font-size: 45px;">Ascii Art</h1>
-            <p>Select Banner Type</p>
+      <h1 class="title" style="font-size: 45px;">Ascii Art</h1>
+      <form class="form" action="/ascii-art" method="POST">
+         <div class=options>
+         <p>Select Banner Type</p>
             <input type="radio" id="ban1" name="banner" value={{.Ban1}}>
             <label for="ban1">{{.Ban1}}</label><br>
             <input type="radio" id="ban2" name="banner" value={{.Ban2}}>
@@ -20,16 +20,29 @@
             <label for="ban3">{{.Ban3}}</label><br>
             <br>
             <br>
-      </div>
-      <div class="usersubmit">
+         </div>
+         <div class="usersubmit">
             <textarea id ="textarea" name="textbox"  placeholder="Enter text" action="/down" method="POST"  rows="2" cols="50" style="border-radius:4px;" ></textarea>
             <input type= "submit" value="Asciify" class= "button"/>
-      </div>
+         </div>
+      </form>
       <br>
       <br>
       <div class="asciibox" >
          <pre>{{.String1}}</pre> 
       </div>
-      <button onclick="location.href='http://localhost:8080/down'" type="button">Download</button>
+      <form id="formatselection" action="/down" method="POST">
+         <div>
+         <p>Select file type</p>
+         <input type="radio" id="doc" name="fileformat" value="doc">
+         <label for="doc">doc</label><br>
+         <input type="radio" id="txt" name="fileformat" value="txt">
+         <label for="txt">txt</label><br>
+         <button class="button">Download</button>
+      </div>
+   </form>
    </body>
 </html>
+
+
+

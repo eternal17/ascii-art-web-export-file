@@ -101,9 +101,13 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 		String1: Newline(testReturn.textbox, asciiChrs),
 	}
 
-	man := os.WriteFile("download.txt", []byte(p.String1), 0644)
+	man := os.WriteFile("download.doc", []byte(p.String1), 0644)
 	if man != nil {
 		panic(man)
+	}
+	man2 := os.WriteFile("download.txt", []byte(p.String1), 0644)
+	if man2 != nil {
+		panic(man2)
 	}
 
 	if err := tpl.ExecuteTemplate(w, "index.html", p); err != nil {
@@ -112,7 +116,10 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func download(w http.ResponseWriter, r *http.Request) {
-	f, _ := os.Open("download.txt")
+
+	formatType := r.FormValue("fileformat")
+
+	f, _ := os.Open("download." + formatType)
 	defer f.Close()
 
 	file, _ := f.Stat()
@@ -120,7 +127,7 @@ func download(w http.ResponseWriter, r *http.Request) {
 
 	sfSize := strconv.Itoa(int(fsize))
 
-	w.Header().Set("Content-Disposition", "attachment; filename=asciiresults")
+	w.Header().Set("Content-Disposition", "attachment; filename=asciiresults."+formatType)
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Content-Length", sfSize)
 
@@ -145,10 +152,9 @@ func Newline(n string, y map[int][]string) string {
 	return asciiString
 }
 
-// main runs the api(server) and its	 respective handlers
+// main runs the api(server) and its respective handlers
 func main() {
 	tpl = template.Must(template.ParseGlob("templates/*.html"))
-	// http.PathPrefix("/styles/").Handler(http.StripPrefix("/styles/",
 	http.HandleFunc("/", indexHandler)
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("templates/styles/"))))
 	http.HandleFunc("/ascii-art", processHandler)
